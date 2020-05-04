@@ -1,7 +1,14 @@
 import { Application } from "probot"; // eslint-disable-line no-unused-vars
 const recastai = require("recastai").default;
 
-const getLabel = (result: any) => {
+type ResultType = {
+  isAssert: Function;
+  isCommand: Function;
+  isWhQuery: Function;
+  isYnQuery: Function;
+};
+
+const getLabel = (result: ResultType) => {
   let label = undefined;
   if (result.isAssert()) {
     label = "bug";
@@ -22,7 +29,6 @@ export = (app: Application) => {
         action,
       },
     } = context;
-    console.log({ context });
     const message = `Thanks @${user.login} for ${
       action === "edited" ? "editing" : "opening"
     } this issue.`;
@@ -33,7 +39,6 @@ export = (app: Application) => {
 
     const result = await request.analyseText(title);
     const label = getLabel(result);
-
     if (label) {
       const params = context.issue({
         labels: [label],
